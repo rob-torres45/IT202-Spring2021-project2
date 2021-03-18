@@ -1,150 +1,134 @@
+// Canvas Variables And Image Source //
 const canvas = document.querySelector("canvas");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 let ctx = canvas.getContext("2d");
+let monsterImage = new Image();
+monsterImage.src = "strip.png";
+// ------------------------------------------ //
 
-// let monsterImage = new Image();
-// monsterImage.src = "strip.png";
-// let monster_x = canvas.width / 2;
-// let monster_y = canvas.height / 2;
-let monster_radius = 30;
-
-let img = new Image();
-img.src = "strip.png";
-
-img.addEventListener("load", (event) => {
-    spriteH = img.height;
-    spriteW = img.width/3.3;  // because I know they are squares
+monsterImage.addEventListener("load", (event) => {
+    spriteH = monsterImage.height;
+    spriteW = monsterImage.width/3.3;
     
-    ctx.drawImage(img, 0, 0, spriteW, spriteH,  0, 50, spriteW, spriteH);
-
-
-    ctx.drawImage(img, spriteW*1, 0, spriteW, spriteH,  300, 50, spriteW, spriteH);
-
-    console.log("done with drawImage")
-
+    ctx.drawImage(monsterImage, 0, 0, spriteW, spriteH,  0, 50, spriteW, spriteH);
+    ctx.drawImage(monsterImage, spriteW*1, 0, spriteW, spriteH,  300, 50, spriteW, spriteH);
     draw();
-
   })
 
-  let numImages = 3;
-  let currentImageIndex = 0;
-  let frames = 0;
-  let x = 0;
+// Monster Variables //
+let numImages = 3;
+let currentImageIndex = 0;
+let frames = 0;
+let monsterX = 0;
+let monsterY = 500;
+let monsterRadius = 30;
+// --------------------------- //
 
-  let draw = () => {
+
+function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    // clear the canvas
-    // ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    // calculate and update vars
     frames += 1;
-    x += 1;
-
-    // if (x % 100 == 0) {
-    //   myAudio.play();
-    // }
-
-    // render
-    if (frames % 5 == 0) {
+    // x += 1;
+    if (frames % 10 == 0) {
         currentImageIndex = (currentImageIndex == 2) ? 0 : currentImageIndex += 1;
     }
-    ctx.drawImage(img, spriteW*currentImageIndex, 0, spriteW, spriteH, x, canvas.height / 2, spriteW, spriteH);
-
+    ctx.drawImage(monsterImage, spriteW*currentImageIndex, 0, spriteW, spriteH, monsterX, monsterY, spriteW, spriteH);
     window.requestAnimationFrame(draw);
+
+    circles.forEach((circle) => {
+      drawCircle(circle.x, circle.y, radius, 5, "white", circle.colour);
+    });
+  }
+
+document.addEventListener("keydown", (event) => {
+    if(event.keyCode == 38){
+        monsterY -= 80;
+    }
+    else if(event.keyCode == 39){
+        monsterX += 80;
+    }
+    else if(event.keyCode == 40){
+        monsterY += 80;
+    }
+    else if(event.keyCode == 37){
+        monsterX -= 80;
+    }
+})
+function Circle(x, y, dx, dy, radius, border, borderColor, fillColor){
+    this.x = x;
+    this.y = y;
+    this.dx = dx;
+    this.dy = dy;
+    this.radius = radius;
+    this.border = border;
+    this.borderColor = borderColor;
+    this.fillColor = fillColor;
+    
+    this.draw = function(){
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+      ctx.strokeStyle = "black";
+      ctx.fillStyle = fillColor;
+      ctx.lineWidth = border;
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+  
+    this.update = function(){
+      if(this.x + this.radius > canvas.width || this.x - this.radius < 0){
+        this.dx = -this.dx;
+      }
+      if(this.y + this.radius > canvas.height || this.y - this.radius < 0){
+        this.dy = -this.dy;
+      }
+      this.x += this.dx;
+      this.y += this.dy;
+  
+      this.draw();
+    }
   }
   
-
-// monsterImage.addEventListener("load", (event) => {
-//     spriteH = monsterImage.height;
-//     spriteW = monsterImage.width;
-//     // ctx.drawImage(img, 0, 0, spriteW, spriteH,  0, 50, spriteW, spriteH);
-//     // ctx.drawImage(img, spriteW*1, 0, spriteW, spriteH,  300, 50, spriteW, spriteH);
-//     draw();
-// })
-
-// let numImages = 3;
-// let currentImageIndex = 0;
-// let frames = 8;
-// let monsterX = 10;
-// let monsterY = 200;
-
-// let draw = () => {
-//     frames += 1;
+  var circles = [];
+  
+  for(var i = 0; i < 5; i++){
+    var radius = 30;
+    let border = 5;
+    var x = Math.random() * (canvas.width - radius * 2) + radius;
+    var y = Math.random() * (canvas.height - radius * 2) + radius;
+    var dx = (Math.random() - 0.5) * 10;
+    var dy = (Math.random() - 0.5) * 10;
+    let colour = randomColour();
+    circles.push(new Circle(x, y, dx, dy, radius, border, colour, colour));
+  }
+  
+  function randomColour(){
+    let characters = "0123456789ABCDEF";
+    let colour = "#";
+    for(let i = 0; i < 6; i++){
+        colour += characters[Math.floor(Math.random() * 16)];
+    }
+    return colour;
+  }
+  
+//   function animate(){
+//     requestAnimationFrame(animate);
 //     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-//     if(frames % 3 == 0){
-//         currentImageIndex = (currentImageIndex == 2) ? 0 : currentImageIndex += 1;
+  
+//     for(var i = 0; i < circles.length; i++){
+//       circles[i].update();
 //     }
-
-//     if(rightPress){
-//         monsterX += 10;
-//         // ctx.drawImage(monsterImage, spriteW * currentImageIndex, 0, spriteW, spriteH, monsterX, monsterY, spriteW, spriteH);
-//     }
-//     else if(leftPress){
-//         monsterX -= 10;
-//         // ctx.drawImage(monsterImage, spriteW * currentImageIndex, 0, spriteW, spriteH, monsterX, monsterY, spriteW, spriteH);
-//     }
-//     else if(downPress){
-//         monsterY += 10;
-//         // ctx.drawImage(monsterImage, spriteW * currentImageIndex, 0, spriteW, spriteH, monsterX, monsterY, spriteW, spriteH);
-//     }
-//     else if(upPress){
-//         monsterY -= 10;
-//         // ctx.drawImage(monsterImage, spriteW * currentImageIndex, 0, spriteW, spriteH, monsterX, monsterY, spriteW, spriteH);
-//     }
-//     ctx.drawImage(monsterImage, spriteW * currentImageIndex, 0, spriteW, spriteH, monsterX, monsterY, spriteW, spriteH);
-
-//     circles.forEach((circle) => {
-//         drawCircle(circle.x, circle.y, radius, 5, "red", circle.colour);
-//     });
-
-//     window.requestAnimationFrame(draw);
-// }
-
-// document.addEventListener("keydown", keyDownHandler, false);
-// document.addEventListener("keyup", keyUpHandler, false);
-
-// var rightPress = false;
-// var leftPress = false;
-// var upPress = false;
-// var downPress = false;
-
-// function keyDownHandler(event){
-//     if(event.keyCode == 39 || event.keyCode == 68){
-//         rightPress = true;
-//     }
-//     else if(event.keyCode == 37 || event.keyCode == 65){
-//         leftPress = true;
-//     }
-//     else if(event.keyCode == 40 || event.keyCode == 83){
-//         downPress = true;
-//     }
-//     else if(event.keyCode == 38 || event.keyCode == 87){
-//         upPress = true;
-//     }
-// }
-
-// function keyUpHandler(event){
-//     if(event.keyCode == 39 || event.keyCode == 68){
-//         rightPress = false;
-//     }
-//     else if(event.keyCode == 37 || event.keyCode == 65){
-//         leftPress = false;
-//     }
-//     else if(event.keyCode == 40 || event.keyCode == 83){
-//         downPress = false;
-//     }
-//     else if(event.keyCode == 38 || event.keyCode == 87){
-//         upPress = false;
-//     }
-// }
+//   }
+// animate();
 
 // let circles = [];
 // let radius = 25;
 // let circleX = 10;
 // let circleY = 20;
+// let dx = 10;
+// let dy = 10;
+
 
 // function drawCircle(circleX, circleY, radius, border, borderColor, fillColor){
 //     ctx.beginPath();
@@ -155,6 +139,9 @@ img.addEventListener("load", (event) => {
 //     ctx.closePath();
 //     ctx.fill();
 //     ctx.stroke();
+
+//     circleX += dx;
+//     circleY += dy;
 // }
 
 // for(let i = 0; i < 10; i++)
@@ -174,133 +161,51 @@ img.addEventListener("load", (event) => {
 //     }
 //     return colour;
 // }
+// var dx = circles.x - spriteW;
+// var dy = circles.y - spriteH;
+// var distance = Math.sqrt(dx * dx + dy * dy);
 
-// function drawMonster(){
-//     ctx.drawImage(monsterImage, monster_x, monster_y);
-//     window.requestAnimationFrame(drawMonster);
+// if(distance < circles.radius + monsterRadius){
+//     circles.colour = "red";
 // }
-// drawMonster();
 
-// monsterImage.addEventListener("load", (event) => {
-//     spriteH = monsterImage.height;
-//     spriteW = spriteH;
-//     ctx.drawImage(monsterImage, 0, 0, spriteW, spriteH, 0, 50, spriteW, spriteH);
+// let secondsPassed = 0;
+// let oldTimeStamp = 0;
+// let movingSpeed = 90;
 
-//     ctx.drawImage(img, spriteW * 1, 0, spriteW, spriteH, 300, 50, spriteW, spriteH);
-//     // draw();
-// })
+// function gameLoop(timeStamp) {
+//     // Calculate how much time has passed
+//     secondsPassed = (timeStamp - oldTimeStamp) / 1000;
+//     oldTimeStamp = timeStamp;
 
-// let numImages = 3;
-// let currentImageIndex = 0;
-// let frames = 10;
-// let monster_x = canvas.width / 2;
-// let monster_y = canvas.height / 2;
+//     // Pass the time to the update
+//     update(secondsPassed);
+//     circles.forEach((circle) => {
+//         drawCircle(circle.x, circle.y, radius, 5, "white", circle.colour);
+//     });
 
-// let draw = () =>{
-//     frames += 1;
+// }
+
+// function update(secondsPassed) {
+//     // Use time to calculate new position
+//     circle.x += (movingSpeed * secondsPassed);
+//     circle.y += (movingSpeed * secondsPassed);
+// }
+
+// var x = 200;
+// var dx = 4;
+// var radius = 30;
+// function animate(){
+//     // requestAnimationFrame(animate);
 //     ctx.clearRect(0, 0, canvas.width, canvas.height);
+//     ctx.beginPath();
+//     ctx.arc(x, 200, radius, 0, Math.PI * 2, false);
+//     ctx.strokeStyle = "blue";
+//     ctx.stroke();
 
-//     if(frames % 8 == 0){
-//         currentImageIndex = (currentImageIndex == 2) ? 0 : currentImageIndex += 1;
+//     if(x + radius > canvas.width || x - radius < 0){
+//         dx = -dx;
 //     }
-//     if(rightPress){
-//         monsterX += 10;
-//     }
-//     else if(leftPress){
-//         monsterX -= 10;
-//     }
-//     else if(downPress){
-//         monsterY += 10;
-//     }
-//     else if(upPress){
-//         monsterY -= 10;
-//     }
-//     ctx.drawImage(monsterImage, spriteW * currentImageIndex, 0, spriteW, spriteH, monster_x, monster_y, spriteW, spriteH);
-//     window.requestAnimationFrame(draw);
-//     // drawEnemies();
+//     x += dx;
 // }
-
-// document.addEventListener("keydown", keyDownHandler, false);
-// document.addEventListener("keyup", keyUpHandler, false);
-
-// var rightPress = false;
-// var leftPress = false;
-// var upPress = false;
-// var downPress = false;
-
-// function keyDownHandler(event){
-//     if(event.keyCode == 39 || event.keyCode == 68){
-//         rightPress = true;
-//     }
-//     else if(event.keyCode == 37 || event.keyCode == 65){
-//         leftPress = true;
-//     }
-//     else if(event.keyCode == 40 || event.keyCode == 83){
-//         downPress = true;
-//     }
-//     else if(event.keyCode == 38 || event.keyCode == 87){
-//         upPress = true;
-//     }
-// }
-
-// function keyUpHandler(event){
-//     if(event.keyCode == 39 || event.keyCode == 68){
-//         rightPress = false;
-//     }
-//     else if(event.keyCode == 37 || event.keyCode == 65){
-//         leftPress = false;
-//     }
-//     else if(event.keyCode == 40 || event.keyCode == 83){
-//         downPress = false;
-//     }
-//     else if(event.keyCode == 38 || event.keyCode == 87){
-//         upPress = false;
-//     }
-// }
-
-
-// function randomColor(){
-//     var character = "0123456789ABCDEF";
-//     var color = "#";
-//     for(var i = 0; i < 6; i++){
-//       color += character[Math.floor(Math.random()*16)];
-//     }
-//     return color;
-// }
-// function drawEnemies(){
-//     for(var i = 0; i < 2; i++)
-//     {
-//         var enemy_x = Math.random() * window.innerWidth;
-//         var enemy_y = Math.random() * window.innerHeight;
-//         ctx.beginPath();
-//         ctx.arc(enemy_x, enemy_y, 30, 0, Math.PI * 2, false);
-//         ctx.lineWidth = 5;
-//         ctx.strokeStyle = "white";
-//         ctx.fillStyle = randomColor();
-//         ctx.fill()
-//         ctx.stroke();
-//     }
-// }
-
-
-// document.addEventListener("keydown", (event) => {
-//     if(event.keyCode == 38)
-//     {
-//         monster_y -= 60;
-//     }
-//     else if(event.keyCode == 39)
-//     {
-//         monster_x += 60;
-//     }
-//     else if(event.keyCode == 40)
-//     {
-//         monster_y += 60;
-//     }
-//     else if(event.keyCode == 37)
-//     {
-//         monster_x -= 60;
-//     }
-// });
-
-
-
+// animate();
