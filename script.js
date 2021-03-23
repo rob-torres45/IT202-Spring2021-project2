@@ -1,11 +1,31 @@
-// Canvas Variables And Image Source //
-const canvas = document.querySelector("canvas");
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+var monsterRadius = 10;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-let ctx = canvas.getContext("2d");
-let monsterImage = new Image();
+var ddx = 2;
+var ddy = -2;
+var leftPressed = false;
+var rightPressed = false;
+var monsterImage = new Image();
 monsterImage.src = "strip.png";
-// ------------------------------------------ //
+var monster_x = 0;
+var monster_y = 600;
+var circles = [];
+var numImages = 3;
+var currentImageIndex = 0;
+var frames = 0;
+  
+for(var i = 0; i < 5; i++){
+  var radius = 10;
+  let border = 5;
+  var x = Math.random() * (canvas.width - radius * 2) + radius;
+  var y = Math.random() * (canvas.height - radius * 2) + radius;
+  var dx = (Math.random() - 0.5) * 10;
+  var dy = (Math.random() - 0.5) * 10;
+  let colour = randomColour();
+    circles.push(new Circle(x, y, dx, dy, radius, border, colour, colour));
+}
 
 monsterImage.addEventListener("load", (event) => {
     spriteH = monsterImage.height;
@@ -13,48 +33,57 @@ monsterImage.addEventListener("load", (event) => {
     
     ctx.drawImage(monsterImage, 0, 0, spriteW, spriteH,  0, 50, spriteW, spriteH);
     ctx.drawImage(monsterImage, spriteW*1, 0, spriteW, spriteH,  300, 50, spriteW, spriteH);
-    draw();
-  })
-
-// Monster Variables //
-let numImages = 3;
-let currentImageIndex = 0;
-let frames = 0;
-let monsterX = 0;
-let monsterY = 500;
-let monsterRadius = 30;
-// --------------------------- //
-
-
-function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    frames += 1;
-    // x += 1;
-    if (frames % 10 == 0) {
-        currentImageIndex = (currentImageIndex == 2) ? 0 : currentImageIndex += 1;
-    }
-    ctx.drawImage(monsterImage, spriteW*currentImageIndex, 0, spriteW, spriteH, monsterX, monsterY, spriteW, spriteH);
-    window.requestAnimationFrame(draw);
-
-    circles.forEach((circle) => {
-      drawCircle(circle.x, circle.y, radius, 5, "white", circle.colour);
-    });
-  }
-
-document.addEventListener("keydown", (event) => {
-    if(event.keyCode == 38){
-        monsterY -= 80;
-    }
-    else if(event.keyCode == 39){
-        monsterX += 80;
-    }
-    else if(event.keyCode == 40){
-        monsterY += 80;
-    }
-    else if(event.keyCode == 37){
-        monsterX -= 80;
-    }
+    drawMonster();
 })
+
+function drawMonster(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  frames += 1;
+  if (frames % 10 == 0) {
+    currentImageIndex = (currentImageIndex == 2) ? 0 : currentImageIndex += 1;
+  }
+  ctx.drawImage(monsterImage, spriteW*currentImageIndex, 0, 
+  spriteW, spriteH, monster_x, monster_y, spriteW, spriteH);
+  requestAnimationFrame(drawMonster);
+
+  if(rightPressed){
+    monster_x += 10;
+  }
+  else if(leftPressed){
+    monster_x -= 10;
+  }
+}
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
+function keyDownHandler(event) {
+    if (event.key == "Right" || event.key == "ArrowRight") {
+        rightPressed = true;
+    }
+    else if (event.key == "Left" || event.key == "ArrowLeft") {
+        leftPressed = true;
+    }
+}
+
+function keyUpHandler(event) {
+    if (event.key == "Right" || event.key == "ArrowRight") {
+        rightPressed = false;
+    }
+    else if (event.key == "Left" || event.key == "ArrowLeft") {
+        leftPressed = false;
+    }
+}
+
+
+function randomColour(){
+  let characters = "0123456789ABCDEF";
+  let colour = "#";
+  for(let i = 0; i < 6; i++){
+    colour += characters[Math.floor(Math.random() * 16)];
+  }
+  return colour;
+}
+
 function Circle(x, y, dx, dy, radius, border, borderColor, fillColor){
     this.x = x;
     this.y = y;
@@ -89,39 +118,38 @@ function Circle(x, y, dx, dy, radius, border, borderColor, fillColor){
       this.draw();
     }
   }
-  
-  var circles = [];
-  
-  for(var i = 0; i < 5; i++){
-    var radius = 30;
-    let border = 5;
-    var x = Math.random() * (canvas.width - radius * 2) + radius;
-    var y = Math.random() * (canvas.height - radius * 2) + radius;
-    var dx = (Math.random() - 0.5) * 10;
-    var dy = (Math.random() - 0.5) * 10;
-    let colour = randomColour();
-    circles.push(new Circle(x, y, dx, dy, radius, border, colour, colour));
-  }
-  
-  function randomColour(){
-    let characters = "0123456789ABCDEF";
-    let colour = "#";
-    for(let i = 0; i < 6; i++){
-        colour += characters[Math.floor(Math.random() * 16)];
-    }
-    return colour;
-  }
-  
-//   function animate(){
-//     requestAnimationFrame(animate);
-//     ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-//     for(var i = 0; i < circles.length; i++){
-//       circles[i].update();
-//     }
-//   }
-// animate();
 
+function drawCircles(){
+  // requestAnimationFrame(drawCircles);
+  // ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for(var i = 0; i < circles.length; i++){
+    circles[i].update();
+  }
+  // circles.forEach((circle) => {
+  //   drawCircle(circle.x, circle.y, radius, 5, "white", circle.colour);
+  // });
+}
+
+
+function draw(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  requestAnimationFrame(draw);
+
+  drawCircles();
+  
+
+  if(rightPressed){
+    monster_x += 10;
+  }
+  else if(leftPressed){
+    monster_x -= 10;
+  }
+}
+
+draw();
+// circles.forEach((circle) => {
+//   drawCircle(circle.x, circle.y, radius, 5, "white", circle.colour);
+// })
 // let circles = [];
 // let radius = 25;
 // let circleX = 10;
