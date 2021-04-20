@@ -3,6 +3,7 @@ var ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+var gamma = 0;
 var leftPressed = false;
 var rightPressed = false;
 var monsterImage = new Image();
@@ -84,44 +85,58 @@ function drawMonster(){
   
   circles.forEach((circle) => {
     circle.y += 1;
-    myAudio2.play();
+    // myAudio2.play();
 
   })
 
-  circles.forEach((circle) => {
-    if(circle.y >= canvas.width + 10){
-      circle.x = Math.floor(Math.random() * canvas.height);
-      circle.y = -10;
-    }
-    var dx = circle.x - monster_x;
-    var dy = circle.y - monster_y;
-    lives = 3;
-    var distance = Math.sqrt(dx * dx + dy * dy);
-    if(distance < circle.radius + monsterRadius){
-      lives--;
-      //livesMessage.setText("Lives: " + lives);
-      myAudio.play();
-    }
-    if(lives == 0){
-      alert('Game Over!');
-      location.reload();
-    }
-    })
+circles.forEach((circle) => {
+  if(circle.y >= canvas.width + 10){
+    circle.x = Math.floor(Math.random() * canvas.height);
+    circle.y = -10;
+  }
+  var dx = circle.x - monster_x;
+  var dy = circle.y - monster_y;
+  lives = 3;
+  var distance = Math.sqrt(dx * dx + dy * dy);
+  if(distance < circle.radius + monsterRadius){
+    lives--;
+    //livesMessage.setText("Lives: " + lives);
+    myAudio.play();
+  }
+  if(lives == 0){
+    alert('Game Over!');
+    location.reload();
+  }
+})
 
-  circles.forEach((circle) => {
-    ctx.drawImage(bombImage, circle.x, circle.y);
-  })
+circles.forEach((circle) => {
+  ctx.drawImage(bombImage, circle.x, circle.y);
+})
 
-  frames += 1;
+frames += 1;
   if (frames % 10 == 0) {
     currentImageIndex = (currentImageIndex == 2) ? 0 : currentImageIndex += 1;
   }
   ctx.drawImage(monsterImage, spriteW*currentImageIndex, 0, spriteW, spriteH, monster_x, monster_y, spriteW, spriteH);
 
-  if(rightPressed){
+  if(rightPressed || gamma > 20){
     monster_x += 10;
   }
-  else if(leftPressed){
+  else if(leftPressed || gamma < -20){
     monster_x -= 10;
   }
+}
+
+document.addEventListener("click", (event) => {
+  DeviceMotionEvent.requestPermission()
+  .then(response => {
+    if(response == 'granted') {
+      window.addEventListener("deviceorientation", handleOrientation, true)
+      }
+    })
+    .catch(console.error)
+});
+
+function handleOrientation(event){
+  gamma = event.gamma;
 }
