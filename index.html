@@ -8,7 +8,24 @@
   </head>
 
   <body>
+    <div class = "lives">
+      Lives = 
+    </div>
     <canvas id = "canvas"></canvas>
     <script src="./script.js"></script>
+    <script>
+      if('serviceWorker' in navigator){
+          window.addEventListener('load', function(){
+              navigator.serviceWorker.register('./sw.js').then(function(registration) {
+                  // "use /sw.js if this doesnt work^^^"
+                  // Registration was successful
+                  console.log('ServiceWorker registration was succesfull!', registration.scope);
+              }, function(err){
+                  // Failed
+                  console.log('ServiceWorker registration fail!', err);
+              });
+          });
+      }
+  </script>
   </body>
 </html>
