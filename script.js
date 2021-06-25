@@ -85,7 +85,7 @@ function drawMonster(){
   
   circles.forEach((circle) => {
     circle.y += 1;
-    // myAudio2.play();
+    myAudio2.play();
 
   })
 
